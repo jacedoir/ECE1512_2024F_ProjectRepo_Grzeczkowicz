@@ -2,6 +2,7 @@
 
 # ignoring data folder 
 /data 
+/ECE1512
 
 .DS_Store
 .AppleDouble
