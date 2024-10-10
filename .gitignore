@@ -3,6 +3,7 @@
 # ignoring data folder 
 /data 
 /ECE1512
+/Project A/__pycache__
 
 .DS_Store
 .AppleDouble
