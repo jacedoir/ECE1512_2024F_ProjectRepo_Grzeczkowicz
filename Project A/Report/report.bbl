@@ -1,0 +1,8 @@
+\begin{thebibliography}{1}
+
+\bibitem{sajedi2023datadam}
+Ahmad Sajedi, Samir Khaki, Ehsan Amjadian, Lucy~Z Liu, Yuri~A Lawryshyn, and Konstantinos~N Plataniotis.
+\newblock Datadam: Efficient dataset distillation with attention matching.
+\newblock In {\em Proceedings of the IEEE/CVF International Conference on Computer Vision}, pages 17097--17107, 2023.
+
+\end{thebibliography}
