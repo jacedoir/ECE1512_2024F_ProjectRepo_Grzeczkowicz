@@ -1,3 +1,4 @@
+import time
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -118,8 +119,8 @@ class DataDAM:
                     accs = []
                     Start = time.time()
                     for it_eval in range(args.num_eval):
-                        net_eval = get_network(model_eval, channel, num_classes, im_size).to(args.device) # get a random model
-                        image_syn_eval, label_syn_eval = copy.deepcopy(image_syn.detach()), copy.deepcopy(label_syn.detach()) # avoid any unaware modification
+                        net_eval = get_network(model_eval, self.channels, self.num_classes, self.im_size).to(self.device) # get a random model
+                        image_syn_eval, label_syn_eval = copy.deepcopy(self.image_syn.detach()), copy.deepcopy(self.label_syn.detach()) # avoid any unaware modification
                         mini_net, acc_train, acc_test = evaluate_synset(it_eval, net_eval, image_syn_eval, label_syn_eval, testloader, args)
                         accs.append(acc_test)
                         if acc_test > best_5[-1]:
