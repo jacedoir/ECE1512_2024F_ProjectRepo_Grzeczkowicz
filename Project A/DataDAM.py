@@ -47,8 +47,8 @@ class DataDAM:
         self.images_all = torch.cat(self.images_all, dim=0).to(self.device)
         self.labels_all = torch.tensor(self.labels_all, dtype=torch.long, device=self.device)
     
-    def _get_images(self, c, n): # get random n images from class c
-        idx_shuffle = np.random.choice(self.indices_class[c], n, replace=False)
+    def _get_images(self, n): # get random n images from class c
+        idx_shuffle = np.random.choice(self.indices_class, n, replace=False)
         return self.images_all[idx_shuffle]
 
     def initialize_synthetic_dataset_from_real(self):
@@ -64,135 +64,89 @@ class DataDAM:
         self.synthetic_dataset = torch.normal(mean, std, size=(self.num_classes*self.IPC, self.channels, self.im_size[0], self.im_size[1]), dtype=torch.float, requires_grad=True, device=self.device)
         self.label_syn = torch.tensor([np.ones(self.IPC)*i for i in range(self.num_classes)], dtype=torch.long, requires_grad=False, device=self.device).view(-1) # [0,0,0, 1,1,1, ..., 9,9,9]
 
+    def mmd_loss(self, final_feature_real, final_feature_synthetic):
+        """
+        Compute the MMD loss between real and synthetic data.
+        """
+        print(final_feature_real.shape)
+        print(final_feature_synthetic.shape)
+        return
     
-    def match_loss(self,gw_syn, gw_real, device, dis_metric):
-        dis = torch.tensor(0.0, device=device)
+    def attention_loss(self, feature_real, feature_synthetic):
+        """
+        Compute the attention loss between real and synthetic data.
+        """
+        return
 
-        if dis_metric == 'ours':
-            for ig in range(len(gw_real)):
-                gwr = gw_real[ig]
-                gws = gw_syn[ig]
-                dis += distance_wb(gwr, gws)
+    def train(self):
+        """
+        Train the model.
+        """
+        temp_net = get_network(self.model, self.channels, self.num_classes, self.im_size)
+        temp_net.to(self.device)
+        optimizer_images = torch.optim.SGD(temp_net.parameters(), lr=self.eta_S)
+        for t in tqdm(range(self.T), desc="Iterations", leave=True):
+            #number of iterations
+            #sample minibatches for real and synthetic data for each class c
+            minibatches_real = []
+            minibatches_synthetic = []
+            minibatches_real_labels = []
+            minibatches_synthetic_labels = []
+            for c in range(self.num_classes):
+                real_data = self.images_all[np.random.choice(self.indices_class[c], self.batch_size, replace=True)]
+                syn_data = self.synthetic_dataset[np.random.choice(self.indices_class[c], self.batch_size, replace=True)]
+                real_data_labels = [c for i in range(self.batch_size)]
+                syn_data_labels = [c for i in range(self.batch_size)]
+                minibatches_real.append(real_data)
+                minibatches_synthetic.append(syn_data)
+                minibatches_real_labels.append(real_data_labels)
+                minibatches_synthetic_labels.append(syn_data_labels)
+            minibatches_real = torch.cat(minibatches_real, dim=0).to(self.device)
+            minibatches_synthetic = torch.cat(minibatches_synthetic, dim=0).to(self.device)
+            minibatches_real_labels = torch.tensor(minibatches_real_labels, dtype=torch.long, requires_grad=False, device=self.device).view(-1)
+            minibatches_synthetic_labels = torch.tensor(minibatches_synthetic_labels, dtype=torch.long, requires_grad=False, device=self.device).view(-1)
 
-        elif dis_metric == 'mse':
-            gw_real_vec = []
-            gw_syn_vec = []
-            for ig in range(len(gw_real)):
-                gw_real_vec.append(gw_real[ig].reshape((-1)))
-                gw_syn_vec.append(gw_syn[ig].reshape((-1)))
-            gw_real_vec = torch.cat(gw_real_vec, dim=0)
-            gw_syn_vec = torch.cat(gw_syn_vec, dim=0)
-            dis = torch.sum((gw_syn_vec - gw_real_vec)**2)
 
-        elif dis_metric == 'cos':
-            gw_real_vec = []
-            gw_syn_vec = []
-            for ig in range(len(gw_real)):
-                gw_real_vec.append(gw_real[ig].reshape((-1)))
-                gw_syn_vec.append(gw_syn[ig].reshape((-1)))
-            gw_real_vec = torch.cat(gw_real_vec, dim=0)
-            gw_syn_vec = torch.cat(gw_syn_vec, dim=0)
-            dis = 1 - torch.sum(gw_real_vec * gw_syn_vec, dim=-1) / (torch.norm(gw_real_vec, dim=-1) * torch.norm(gw_syn_vec, dim=-1) + 0.000001)
+            avg_attention_loss = 0
+            avg_mmd_loss = 0
+            for k in range(self.K):
+                #get a random weight initialization
+                net = get_network(self.model, self.channels, self.num_classes, self.im_size)
+                net.to(self.device)
+                optimizer = torch.optim.SGD(net.parameters(), lr=self.eta_theta)
+                criterion = nn.MSELoss()
 
-        else:
-            exit('unknown distance function: %s'%dis_metric)
+                #train the network
+                for step in range(self.zeta_theta):
+                    optimizer.zero_grad()
+                    feature_real = net(minibatches_real)
+                    loss = criterion(feature_real, minibatches_synthetic_labels)
+                    loss.backward()
+                    optimizer.step()
 
-        return dis
-    
-    def epoch(self,mode, dataloader, net, optimizer, criterion, device):
-        loss_avg, acc_avg, num_exp = 0, 0, 0
-        net = net.to(device)
-        criterion = criterion.to(device)
+                feature_real = net(minibatches_real)
+                feature_synthetic = net(minibatches_synthetic)
+                avg_attention_loss += self.attention_loss(feature_real, feature_synthetic)
+                avg_mmd_loss += self.mmd_loss(feature_real[-1], feature_synthetic[-1])
 
-        if mode == 'train':
-            net.train()
-        else:
-            net.eval()
+            avg_attention_loss /= self.K
+            avg_mmd_loss /= self.K
 
-        for i_batch, datum in enumerate(dataloader):
-            img = datum[0].float().to(device)
-            lab = datum[1].long().to(device)
-            n_b = lab.shape[0]
-
-            output = net(img)
-            loss = criterion(output, lab)
-            acc = np.sum(np.equal(np.argmax(output.cpu().data.numpy(), axis=-1), lab.cpu().data.numpy()))
-
-            loss_avg += loss.item()*n_b
-            acc_avg += acc
-            num_exp += n_b
-
-            if mode == 'train':
-                optimizer.zero_grad()
+            #update the synthetic data for zeta_S steps
+            for step in range(self.zeta_S):
+                optimizer_images.zero_grad()
+                loss = avg_attention_loss + self.lambda_mmd * avg_mmd_loss
                 loss.backward()
-                optimizer.step()
+                optimizer_images.step()
 
-        loss_avg /= num_exp
-        acc_avg /= num_exp
+            #save the synthetic data
+            self.saved_synthetic_dataset.append([self.synthetic_dataset.detach().cpu(), self.label_syn])
 
-        return loss_avg, acc_avg
-
-    def run(self):
-        # Optimizer for synthetic data samples
-        optimizer_img = torch.optim.SGD([self.synthetic_dataset, ], lr=self.eta_S, momentum=0.5)
-        optimizer_img.zero_grad()
-        criterion = torch.nn.CrossEntropyLoss().to(self.device)
-
-        total_steps = self.K * self.T * self.zeta_theta
-        start_time = time.time()
-        
-        self.saved_synthetic_dataset.append([copy.deepcopy(self.synthetic_dataset.detach().cpu()), copy.deepcopy(self.label_syn.detach().cpu())])
-
-        progress_bar_k = tqdm(range(self.K), desc="K", leave=True)
-        for k in progress_bar_k:
-            model = get_network(self.model, self.channels, self.num_classes, self.im_size).to(self.device)
-            model.train()
-            
-            optimizer_model = torch.optim.SGD(model.parameters(), lr=self.eta_theta)
-            optimizer_model.zero_grad()
-            loss_avg, acc_avg = 0,0
-
-            for t in range(self.T):
-                loss = torch.tensor(0.0, device=self.device)
-                
-                for c in range(self.num_classes):
-                    image_real = self._get_images(c, self.batch_size)
-                    label_real = torch.ones((image_real.shape[0],), dtype=torch.long, device=self.device) * c
-                    syntetic_image = self.synthetic_dataset[c*self.IPC:(c+1)*self.IPC].reshape((self.IPC, self.channels, self.im_size[0], self.im_size[1]))
-                    syntetic_label = torch.ones((self.IPC,), dtype=torch.long, device=self.device) * c
-
-                    output_real = model(image_real)
-                    loss_real = criterion(output_real, label_real)
-                    gw_real = torch.autograd.grad(loss_real, model.parameters())
-                    gw_real = list((temp.detach().clone() for temp in gw_real))
-
-                    output_syn = model(syntetic_image)
-                    loss_syn = criterion(output_syn, syntetic_label)
-                    gw_syn = torch.autograd.grad(loss_syn, list(model.parameters()), create_graph=True)
-                    
-                    loss += self.match_loss(gw_real, gw_syn, self.device, "ours")
-                
-
-                optimizer_img.zero_grad()
-                loss.backward()
-                optimizer_img.step()
-                loss_avg += loss.item()
-
-                synthetic_image_train, synthetic_label_train = copy.deepcopy(self.synthetic_dataset.detach().cpu()), copy.deepcopy(self.label_syn.detach().cpu())
-                dst_synthetic_train = TensorDataset(synthetic_image_train, synthetic_label_train)
-                train_loader = DataLoader(dst_synthetic_train, batch_size=self.batch_size, shuffle=True)
-
-                for step in range(self.zeta_S):
-                    loss_avg_model, acc_avg_model = self.epoch('train', train_loader, model, optimizer_model, criterion, self.device)
-
-                loss_avg /= self.T*self.num_classes
-
-                if (k+1) % 5 == 0:
-                    #save every 5 epochs
-                    self.saved_synthetic_dataset.append([copy.deepcopy(self.synthetic_dataset.detach().cpu()), copy.deepcopy(self.label_syn.detach().cpu())]) 
-
-                if k == self.K-1:
-                    #save the final synthetic dataset
-                    self.saved_synthetic_dataset.append([copy.deepcopy(self.synthetic_dataset.detach().cpu()), copy.deepcopy(self.label_syn.detach().cpu())]) 
+    def get_synthetic_dataset_step(self):
         return self.saved_synthetic_dataset
+    
+    def get_synthetic_dataset_final(self):
+        return self.saved_synthetic_dataset[-1]
+
+
 
