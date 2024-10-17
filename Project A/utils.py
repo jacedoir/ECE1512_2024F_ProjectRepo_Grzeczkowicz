@@ -75,7 +75,7 @@ def get_attention(feature_set, param=0, exp=4, norm='l2'):
     
     return normalized_attention_maps
 
-def get_dataset(dataset, data_path):
+def get_dataset(dataset, data_path, args = []):
     if dataset == 'MNIST':
         channel = 1
         im_size = (28, 28)

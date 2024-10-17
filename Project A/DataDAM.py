@@ -12,7 +12,7 @@ from torch.utils.data import DataLoader, TensorDataset
 
 class DataDAM:
     def __init__(self, model, real_dataset, IPC, num_classes, im_size, channels, save_path, batch_size = 64,
-                 K=100, T=10, eta_S=0.1, zeta_S=1, eta_theta=0.01, zeta_theta=50, lambda_mmd=0.01, device='cuda'):
+                 K=100, T=10, eta_S=0.1, zeta_S=1, eta_theta=0.01, zeta_theta=50, lambda_mmd=0.01, device='cuda', minibatches_size=64):
         """ 
         This class aims to reproduce the DataDAM algorithm for synthesizing a dataset. It is an adaptation of the original code from https://github.com/DataDistillation/DataDAM/blob/main/main_DataDAM.py#L75 Some changes have been made to adapt to the current framework.
         """
@@ -33,6 +33,8 @@ class DataDAM:
         self.saved_synthetic_dataset = []
         self.save_path = save_path
         self.batch_size = batch_size
+        self.minibatches_size = minibatches_size
+        self.activations = {}
 
 
 
@@ -68,15 +70,48 @@ class DataDAM:
         """
         Compute the MMD loss between real and synthetic data.
         """
-        print(final_feature_real.shape)
-        print(final_feature_synthetic.shape)
-        return
+        sum = 0
+        for i in range(0, final_feature_real.shape[0], self.IPC):
+            sum += torch.norm(torch.mean(final_feature_real[i:i+self.IPC], dim=0) - torch.mean(final_feature_synthetic[i:i+self.IPC], dim=0))
+        return sum
+    
     
     def attention_loss(self, feature_real, feature_synthetic):
         """
         Compute the attention loss between real and synthetic data.
         """
-        return
+        attention_real = get_attention(feature_real)
+        attention_synthetic = get_attention(feature_synthetic)
+        return torch.norm(attention_real - attention_synthetic)
+
+    
+    def getActivation(self,name):
+        def hook_func(m, inp, op):
+            self.activations[name] = op.clone()
+        return hook_func
+    
+    ''' Defining the Refresh Function to store Activations and reset Collection '''
+    def refreshActivations(self, activations):
+        model_set_activations = [] # Jagged Tensor Creation
+        for i in activations.keys():
+            model_set_activations.append(activations[i])
+        activations = {}
+        return activations, model_set_activations
+    
+    ''' Defining the Delete Hook Function to collect Remove Hooks '''
+    def delete_hooks(slef,hooks):
+        for i in hooks:
+            i.remove()
+            return
+    
+    def attach_hooks(self,net):
+        hooks = []
+        base = net.module if torch.cuda.device_count() > 1 else net
+        for module in (base.features.named_modules()):
+            if isinstance(module[1], nn.ReLU):
+                # Hook the Ouptus of a ReLU Layer
+                hooks.append(base.features[int(module[0])].register_forward_hook(self.getActivation('ReLU_'+str(len(hooks)))))
+        return hooks
 
     def train(self):
         """
@@ -93,10 +128,16 @@ class DataDAM:
             minibatches_real_labels = []
             minibatches_synthetic_labels = []
             for c in range(self.num_classes):
-                real_data = self.images_all[np.random.choice(self.indices_class[c], self.batch_size, replace=True)]
-                syn_data = self.synthetic_dataset[np.random.choice(self.indices_class[c], self.batch_size, replace=True)]
-                real_data_labels = [c for i in range(self.batch_size)]
-                syn_data_labels = [c for i in range(self.batch_size)]
+                real_data = torch.zeros(self.minibatches_size, self.channels, self.im_size[0], self.im_size[1])
+                syn_data = torch.zeros(self.minibatches_size, self.channels, self.im_size[0], self.im_size[1])
+                for i in range(self.minibatches_size):
+                    real_data[i] = self.images_all[np.random.choice(self.indices_class[c])]
+                    if t == 0:
+                        syn_data[i] = self.synthetic_dataset[c*self.IPC + np.random.choice(self.IPC)]
+                    else:
+                        syn_data[i] = self.saved_synthetic_dataset[t-1][0][c*self.IPC + np.random.choice(self.IPC)]
+                real_data_labels = [c for i in range(self.minibatches_size)]
+                syn_data_labels = [c for i in range(self.minibatches_size)]
                 minibatches_real.append(real_data)
                 minibatches_synthetic.append(syn_data)
                 minibatches_real_labels.append(real_data_labels)
@@ -109,25 +150,61 @@ class DataDAM:
 
             avg_attention_loss = 0
             avg_mmd_loss = 0
-            for k in range(self.K):
+            for k in tqdm(range(self.K), desc="Weight Initializations", leave=True):
                 #get a random weight initialization
                 net = get_network(self.model, self.channels, self.num_classes, self.im_size)
                 net.to(self.device)
                 optimizer = torch.optim.SGD(net.parameters(), lr=self.eta_theta)
-                criterion = nn.MSELoss()
+                criterion = nn.CrossEntropyLoss()
+
+                trainloader = torch.utils.data.DataLoader(TensorDataset(minibatches_real, minibatches_real_labels), batch_size=self.batch_size, shuffle=True)
 
                 #train the network
                 for step in range(self.zeta_theta):
-                    optimizer.zero_grad()
-                    feature_real = net(minibatches_real)
-                    loss = criterion(feature_real, minibatches_synthetic_labels)
-                    loss.backward()
-                    optimizer.step()
+                    for i, data in enumerate(trainloader, 0):
+                        inputs, labels = data
+                        optimizer.zero_grad()
+                        feature_real = net(inputs)
+                        loss = criterion(feature_real, labels)
+                        loss.backward()
+                        optimizer.step()
 
-                feature_real = net(minibatches_real)
-                feature_synthetic = net(minibatches_synthetic)
-                avg_attention_loss += self.attention_loss(feature_real, feature_synthetic)
-                avg_mmd_loss += self.mmd_loss(feature_real[-1], feature_synthetic[-1])
+                hooks = self.attach_hooks(net)
+
+                feature_real_loader = torch.utils.data.DataLoader(TensorDataset(minibatches_real, minibatches_real_labels), batch_size=self.batch_size, shuffle=True)
+                feature_synthetic_loader = torch.utils.data.DataLoader(TensorDataset(minibatches_synthetic, minibatches_synthetic_labels), batch_size=self.batch_size, shuffle=True)
+                
+                feature_real_list = []
+                feature_synthetic_list = []
+                for i, data in enumerate(feature_real_loader, 0):
+                    inputs, labels = data
+                    feature_real = net(inputs)
+                    feature_real_list.append(feature_real)
+                for i, data in enumerate(feature_synthetic_loader, 0):
+                    inputs, labels = data
+                    feature_synthetic = net(inputs)
+                    feature_synthetic_list.append(feature_synthetic)
+                feature_real = torch.cat(feature_real_list, dim=0)
+                feature_real = feature_real[0].detach().cpu()
+                feature_synthetic = torch.cat(feature_synthetic_list, dim=0)
+                feature_synthetic = feature_synthetic[0]
+                self.activations, original_model_set_activations = self.refreshActivations(self.activations)
+                self.activations, syn_model_set_activations = self.refreshActivations(self.activations)
+                self.delete_hooks(hooks)
+
+                length_of_network = min(len(original_model_set_activations), len(syn_model_set_activations))
+                for layer in range(length_of_network-1):
+                
+                    real_attention = get_attention(original_model_set_activations[layer].detach(), param=1, exp=1, norm='l2')
+                    syn_attention = get_attention(syn_model_set_activations[layer], param=1, exp=1, norm='l2')
+                    err = self.attention_loss(real_attention, syn_attention)
+                    avg_attention_loss += err
+
+                avg_mmd_loss += self.mmd_loss(feature_real, feature_synthetic)
+                avg_attention_loss /= length_of_network-1
+
+                del net
+                torch.cuda.empty_cache()
 
             avg_attention_loss /= self.K
             avg_mmd_loss /= self.K
@@ -138,6 +215,11 @@ class DataDAM:
                 loss = avg_attention_loss + self.lambda_mmd * avg_mmd_loss
                 loss.backward()
                 optimizer_images.step()
+
+            minibatches_synthetic = minibatches_synthetic.detach().cpu()
+            minibatches_synthetic_labels = minibatches_synthetic_labels.detach().cpu()
+            minibatches_real = minibatches_real.detach().cpu()
+            minibatches_real_labels = minibatches_real_labels.detach().cpu()
 
             #save the synthetic data
             self.saved_synthetic_dataset.append([self.synthetic_dataset.detach().cpu(), self.label_syn])
