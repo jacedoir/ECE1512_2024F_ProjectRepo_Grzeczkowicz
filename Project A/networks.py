@@ -42,10 +42,12 @@ class ConvNet(nn.Module):
         self.classifier = nn.Linear(num_feat, num_classes)
 
     def forward(self, x):
+        # print(x.shape)
         out = self.features(x)
-        out = out.view(out.size(0), -1)
-        out = self.classifier(out)
-        return out
+        emb = out.reshape(out.size(0), -1)
+        # emb = self.embed(x)
+        out = self.classifier(emb)
+        return emb, out
 
     def embed(self, x):
         out = self.features(x)
