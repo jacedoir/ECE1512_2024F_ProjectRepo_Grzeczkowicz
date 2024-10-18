@@ -177,6 +177,12 @@ class DataDAM:
         self.synthetic_dataset = copy.deepcopy(syn_dataset).detach().cpu()
         self.label_syn = copy.deepcopy(label_syn).detach().cpu()
 
+        # Save the orginal synthetic data to folder
+        if not os.path.exists(self.save_path + "/step_0"):
+            os.makedirs(self.save_path + "/step_0")
+        for i in range(len(self.synthetic_dataset)):
+            torchvision.utils.save_image(self.synthetic_dataset[i], self.save_path + "/step_0" + "/synthetic_" + str(i) + ".png")
+
         syn_dataset = syn_dataset.to(self.device).requires_grad_(True)
 
 
@@ -188,7 +194,7 @@ class DataDAM:
 
         optimizer_images = torch.optim.SGD([syn_dataset], lr=self.eta_S)
 
-        for t in range(self.T):
+        for t in range(1,self.T+1):
             loss = torch.tensor(0.0)
             mid_loss = 0
             out_loss = 0
