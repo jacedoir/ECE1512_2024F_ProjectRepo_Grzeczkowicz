@@ -220,7 +220,7 @@ class DataDAM:
             minibatches_real = torch.cat(minibatches_real, dim=0).to(self.device).requires_grad_(False)
             minibatches_real_labels = torch.tensor(minibatches_real_labels, dtype=torch.long, device=self.device).view(-1)
 
-            progress_k = tqdm(range(self.K), desc=f"Iteration {t}/{self.T} - Weight Initializations")
+            progress_k = tqdm(range(1,self.K+1,1), desc=f"Iteration {t}/{self.T} - Weight Initializations")
 
             # Reinitialize network weights for each iteration
             # net = get_network(self.model, self.channels, self.num_classes, self.im_size)
@@ -278,15 +278,30 @@ class DataDAM:
                 output_loss = 10000*self.lambda_mmd * self.error(output_real, output_syn, err_type="MSE_B")
                 loss += output_loss
                 out_loss += output_loss
+
+                if k%5 == 0 and "MHIST" in self.save_path:
+                    loss /= 5
+                    out_loss /= 5
+                    mid_loss /= 5
+                    
+                    optimizer_images.zero_grad()
+                    loss.backward()
+                    optimizer_images.step()
+                    torch.cuda.empty_cache()
+                    loss = torch.tensor(0.0)
+                    out_loss = torch.tensor(0.0)
+                    mid_loss = torch.tensor(0.0)
+
             
-            loss /= self.K
-            out_loss /= self.K
-            mid_loss /= self.K
-            
-            loss.backward()
-            optimizer_images.step()
-            print('Loss: ', loss.item(), "out_loss: ", out_loss.item(), "mid_loss: ", mid_loss.item())
-            torch.cuda.empty_cache()
+            if "MHIST" not in self.save_path:
+                loss /= self.K
+                out_loss /= self.K
+                mid_loss /= self.K
+                
+                loss.backward()
+                optimizer_images.step()
+                print('Loss: ', loss.item(), "out_loss: ", out_loss.item(), "mid_loss: ", mid_loss.item())
+                torch.cuda.empty_cache()
 
 
 
