@@ -9,7 +9,7 @@ import pandas as pd
 import numpy as np
 import copy
 from torch.utils.data import DataLoader, TensorDataset
-
+import torchvision
 class DataDAM:
     def __init__(self, model, real_dataset, IPC, num_classes, im_size, channels, save_path, batch_size = 64,
                  K=100, T=10, eta_S=0.1, zeta_S=1, eta_theta=0.01, zeta_theta=50, lambda_mmd=0.01, device='cuda', minibatches_size=64):
@@ -112,120 +112,125 @@ class DataDAM:
                 # Hook the Ouptus of a ReLU Layer
                 hooks.append(base.features[int(module[0])].register_forward_hook(self.getActivation('ReLU_'+str(len(hooks)))))
         return hooks
+    
+    def error(self,real, syn, err_type="MSE"):       
+        if(err_type == "MSE"):
+            err = torch.sum((torch.mean(real, dim=0) - torch.mean(syn, dim=0))**2)
+        
+        elif (err_type == "MAE"):
+            err = torch.sum(torch.abs(torch.mean(real, dim=0) - torch.mean(syn, dim=0)))
+            
+        elif (err_type == "ANG"):
+            rl = torch.mean(real, dim=0) 
+            sy = torch.mean(syn, dim=0)
+            num = torch.matmul(rl, sy)
+            denom = (torch.sum(rl**2)**0.5) * (torch.sum(sy**2)**0.5)
+            err = torch.acos(num/denom)
+            
+        elif(err_type == "MSE_B"):
+            err = torch.sum((torch.mean(real.reshape(self.num_classes, self.minibatches_size,-1), dim=1).cpu() - torch.mean(syn.cpu().reshape(self.num_classes, self.IPC, -1), dim=1))**2)
+        return err
 
     def train(self):
         """
         Train the model.
         """
-        temp_net = get_network(self.model, self.channels, self.num_classes, self.im_size)
-        temp_net.to(self.device)
-        optimizer_images = torch.optim.SGD(temp_net.parameters(), lr=self.eta_S)
-        for t in tqdm(range(self.T), desc="Iterations", leave=True):
+        torch.autograd.set_detect_anomaly(True)
+
+        optimizer_images = torch.optim.SGD([self.synthetic_dataset,], lr=self.eta_S)
+        for t in range(self.T):
+            loss = torch.tensor(0.0)
+            mid_loss = 0
+            out_loss = 0
             #number of iterations
             #sample minibatches for real and synthetic data for each class c
             minibatches_real = []
-            minibatches_synthetic = []
             minibatches_real_labels = []
-            minibatches_synthetic_labels = []
             for c in range(self.num_classes):
                 real_data = torch.zeros(self.minibatches_size, self.channels, self.im_size[0], self.im_size[1])
-                syn_data = torch.zeros(self.minibatches_size, self.channels, self.im_size[0], self.im_size[1])
                 for i in range(self.minibatches_size):
                     real_data[i] = self.images_all[np.random.choice(self.indices_class[c])]
-                    if t == 0:
-                        syn_data[i] = self.synthetic_dataset[c*self.IPC + np.random.choice(self.IPC)]
-                    else:
-                        syn_data[i] = self.saved_synthetic_dataset[t-1][0][c*self.IPC + np.random.choice(self.IPC)]
                 real_data_labels = [c for i in range(self.minibatches_size)]
-                syn_data_labels = [c for i in range(self.minibatches_size)]
                 minibatches_real.append(real_data)
-                minibatches_synthetic.append(syn_data)
                 minibatches_real_labels.append(real_data_labels)
-                minibatches_synthetic_labels.append(syn_data_labels)
-            minibatches_real = torch.cat(minibatches_real, dim=0).to(self.device)
-            minibatches_synthetic = torch.cat(minibatches_synthetic, dim=0).to(self.device)
+            minibatches_real = torch.cat(minibatches_real, dim=0).to(self.device).requires_grad_(False)
             minibatches_real_labels = torch.tensor(minibatches_real_labels, dtype=torch.long, requires_grad=False, device=self.device).view(-1)
-            minibatches_synthetic_labels = torch.tensor(minibatches_synthetic_labels, dtype=torch.long, requires_grad=False, device=self.device).view(-1)
 
 
-            avg_attention_loss = 0
-            avg_mmd_loss = 0
-            for k in tqdm(range(self.K), desc="Weight Initializations", leave=True):
-                #get a random weight initialization
+            # avg_attention_loss = torch.zeros(1, requires_grad=True, device=self.device)
+            # avg_mmd_loss = torch.zeros(1, requires_grad=True, device=self.device)
+            progress_k = tqdm(range(self.K), desc="Iteration "+str(t)+"/"+str(self.T)+" - Weight Initializations")
+            net = get_network(self.model, self.channels, self.num_classes, self.im_size)
+            net.to(self.device)
+            optimizer_images.zero_grad()
+
+            for k in progress_k:
+                #reset the network weights without reinitializing
                 net = get_network(self.model, self.channels, self.num_classes, self.im_size)
                 net.to(self.device)
-                optimizer = torch.optim.SGD(net.parameters(), lr=self.eta_theta)
-                criterion = nn.CrossEntropyLoss()
-
-                trainloader = torch.utils.data.DataLoader(TensorDataset(minibatches_real, minibatches_real_labels), batch_size=self.batch_size, shuffle=True)
-
+                
+                
                 #train the network
-                for step in range(self.zeta_theta):
-                    for i, data in enumerate(trainloader, 0):
-                        inputs, labels = data
-                        optimizer.zero_grad()
-                        feature_real = net(inputs)
-                        loss = criterion(feature_real, labels)
-                        loss.backward()
-                        optimizer.step()
+                # net.train()
+                # for step in range(self.zeta_theta):
+                #     for i, data in enumerate(trainloader, 0):
+                #         inputs, labels = data
+                #         optimizer.zero_grad()
+                #         feature_real = net(inputs)
+                #         loss = criterion(feature_real, labels)
+                #         loss.backward()
+                #         optimizer.step()
 
+                # net.eval()
                 hooks = self.attach_hooks(net)
 
-                feature_real_loader = torch.utils.data.DataLoader(TensorDataset(minibatches_real, minibatches_real_labels), batch_size=self.batch_size, shuffle=True)
-                feature_synthetic_loader = torch.utils.data.DataLoader(TensorDataset(minibatches_synthetic, minibatches_synthetic_labels), batch_size=self.batch_size, shuffle=True)
+                # feature_real_loader = torch.utils.data.DataLoader(TensorDataset(minibatches_real, minibatches_real_labels), batch_size=self.batch_size, shuffle=True)
+                # feature_synthetic_loader = torch.utils.data.DataLoader(TensorDataset(self.synthetic_dataset, self.label_syn), batch_size=self.batch_size, shuffle=True)
                 
-                feature_real_list = []
-                feature_synthetic_list = []
-                for i, data in enumerate(feature_real_loader, 0):
-                    inputs, labels = data
-                    feature_real = net(inputs)
-                    feature_real_list.append(feature_real)
-                for i, data in enumerate(feature_synthetic_loader, 0):
-                    inputs, labels = data
-                    feature_synthetic = net(inputs)
-                    feature_synthetic_list.append(feature_synthetic)
-                feature_real = torch.cat(feature_real_list, dim=0)
-                feature_real = feature_real[0].detach().cpu()
-                feature_synthetic = torch.cat(feature_synthetic_list, dim=0)
-                feature_synthetic = feature_synthetic[0]
+                hooks = self.attach_hooks(net)
+            
+                output_real = net(minibatches_real)
                 self.activations, original_model_set_activations = self.refreshActivations(self.activations)
+                
+                output_syn = net(self.synthetic_dataset)
                 self.activations, syn_model_set_activations = self.refreshActivations(self.activations)
                 self.delete_hooks(hooks)
-
-                length_of_network = min(len(original_model_set_activations), len(syn_model_set_activations))
-                for layer in range(length_of_network-1):
+                output_real = output_real.detach()
+                output_syn = output_syn.detach()
+                length_of_network = len(original_model_set_activations)# of Feature Map Sets
                 
+                for layer in range(length_of_network-1):
+                    
                     real_attention = get_attention(original_model_set_activations[layer].detach(), param=1, exp=1, norm='l2')
                     syn_attention = get_attention(syn_model_set_activations[layer], param=1, exp=1, norm='l2')
-                    err = self.attention_loss(real_attention, syn_attention)
-                    avg_attention_loss += err
+                    tl =  100*self.error(real_attention, syn_attention, err_type="MSE_B")
+                    loss+=tl
+                    mid_loss += tl
 
-                avg_mmd_loss += self.mmd_loss(feature_real, feature_synthetic)
-                avg_attention_loss /= length_of_network-1
+                output_loss =  100*self.lambda_mmd * self.error(output_real, output_syn, err_type="MSE_B")
 
-                del net
-                torch.cuda.empty_cache()
+                loss += output_loss
+                out_loss += output_loss
 
-            avg_attention_loss /= self.K
-            avg_mmd_loss /= self.K
+            optimizer_images.zero_grad()
+            #backward up to the synthetic data (edit the data)  
+            loss.backward(retain_graph=True)
+            optimizer_images.step()
 
-            #update the synthetic data for zeta_S steps
-            for step in range(self.zeta_S):
-                optimizer_images.zero_grad()
-                loss = avg_attention_loss + self.lambda_mmd * avg_mmd_loss
-                loss.backward()
-                optimizer_images.step()
 
-            minibatches_synthetic = minibatches_synthetic.detach().cpu()
-            minibatches_synthetic_labels = minibatches_synthetic_labels.detach().cpu()
-            minibatches_real = minibatches_real.detach().cpu()
-            minibatches_real_labels = minibatches_real_labels.detach().cpu()
+                #save the synthetic data
+            self.saved_synthetic_dataset.append([copy.deepcopy(self.synthetic_dataset.detach().cpu()), self.label_syn])
+            #save the last iteration to folder
+            images, labels = self.saved_synthetic_dataset[-1]
+            #if path for step t does not exist, create it
+            if not os.path.exists(self.save_path+"/step_"+str(t)):
+                os.makedirs(self.save_path+"/step_"+str(t))
+            for i in range(len(images)):
+                torchvision.utils.save_image(images[i], self.save_path+"/step_"+str(t)+"/synthetic_"+str(i)+".png")
+            
 
-            #save the synthetic data
-            self.saved_synthetic_dataset.append([self.synthetic_dataset.detach().cpu(), self.label_syn])
-
-    def get_synthetic_dataset_step(self):
-        return self.saved_synthetic_dataset
+    def get_synthetic_dataset_step(self, step):
+        return self.saved_synthetic_dataset[step]
     
     def get_synthetic_dataset_final(self):
         return self.saved_synthetic_dataset[-1]
