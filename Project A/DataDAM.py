@@ -288,6 +288,7 @@ class DataDAM:
                     loss.backward()
                     optimizer_images.step()
                     torch.cuda.empty_cache()
+                    progress_k.set_postfix(loss=loss.item(), out_loss=out_loss.item(), mid_loss=mid_loss.item())
                     loss = torch.tensor(0.0)
                     out_loss = torch.tensor(0.0)
                     mid_loss = torch.tensor(0.0)

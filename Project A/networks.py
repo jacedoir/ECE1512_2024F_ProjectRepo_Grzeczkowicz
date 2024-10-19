@@ -28,7 +28,8 @@ class MLP(nn.Module):
         out = F.relu(self.fc_1(out))
         out = F.relu(self.fc_2(out))
         out = self.fc_3(out)
-        return out
+        #we add this so it's compatible with the other models
+        return 0, out
 
 
 
@@ -162,9 +163,9 @@ class AlexNet(nn.Module):
 
     def forward(self, x):
         x = self.features(x)
-        x = x.view(x.size(0), -1)
-        x = self.fc(x)
-        return x
+        emb = x.view(x.size(0), -1)
+        out = self.fc(emb)
+        return emb, out
 
     def embed(self, x):
         x = self.features(x)
@@ -200,9 +201,10 @@ class AlexNetBN(nn.Module):
 
     def forward(self, x):
         x = self.features(x)
-        x = x.view(x.size(0), -1)
-        x = self.fc(x)
-        return x
+        emb = x.view(x.size(0), -1)
+        out = self.fc(emb)
+        return emb, out
+
 
     def embed(self, x):
         x = self.features(x)
@@ -228,7 +230,7 @@ class VGG(nn.Module):
         x = self.features(x)
         x = x.view(x.size(0), -1)
         x = self.classifier(x)
-        return x
+        return 0, x
 
     def embed(self, x):
         x = self.features(x)
