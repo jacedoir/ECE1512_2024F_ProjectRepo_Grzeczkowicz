@@ -1,4 +1,4 @@
-\documentclass[conference]{IEEEtran}
+\documentclass[onecolumn]{IEEEtran}
 \IEEEoverridecommandlockouts
 % The preceding line is only needed to identify funding in the first footnote. If that is unneeded, please comment it out.
 \usepackage{cite}
@@ -50,6 +50,15 @@
 
 \def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
     T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+
+% Add page numbers
+\fancyhf{} % Clear all headers and footers
+\fancyfoot[C]{\thepage} % Footer centered with page number
+\renewcommand{\headrulewidth}{0pt} % Remove header rule
+\renewcommand{\footrulewidth}{0pt} % Remove footer rule
+
+\pagestyle{fancy} % Enable fancy header/footer
+
 \begin{document}
 
 \title{ECE1512 Project A Report}
@@ -57,24 +66,30 @@
 \author{\IEEEauthorblockN{Rémi Grzeczkowicz}
 \IEEEauthorblockA{\textit{MScAC Student} \\
 \textit{University of Toronto}\\
+Student Number: 1010905399\\
 remigrz@cs.toronto.edu}
 }
 
 \maketitle
+\thispagestyle{fancy} % Apply fancy header/footer, including the page number on the first page
 
-\begin{abstract}
-This document is a model and instructions for \LaTeX.
-This and the IEEEtran.cls file define the components of your paper [title, text, heads, etc.]. *CRITICAL: Do Not Use Symbols, Special Characters, Footnotes, 
-or Math in Paper Title or Abstract.
-\end{abstract}
 
-\begin{IEEEkeywords}
-component, formatting, style, styling, insert
-\end{IEEEkeywords}
+% \begin{abstract}
+% This document is a model and instructions for \LaTeX.
+% This and the IEEEtran.cls file define the components of your paper [title, text, heads, etc.]. *CRITICAL: Do Not Use Symbols, Special Characters, Footnotes, 
+% or Math in Paper Title or Abstract.
+% \end{abstract}
+
+% \begin{IEEEkeywords}
+% component, formatting, style, styling, insert
+% \end{IEEEkeywords}
+
+\section{Introduction}
 
 \section{Task 1}
+This part relies on the paper \cite{sajedi2023datadam}.
+
 \subsection{Part 1}
-This question relies on the paper \cite{sajedi2023datadam}.
 \begin{enumerate}[label=(\alph*)]
     \item In this paper, the purpose of using Dataset distillation is to reduce the training cost while preserving the performance of the model.
     \vspace{3mm}
@@ -93,7 +108,7 @@ This question relies on the paper \cite{sajedi2023datadam}.
         \item Initialize a synthetic dataset $\mathcal{S}$ either using random noise or sampling from the original training dataset $\mathcal{T}$.
         \item For each class $k$ a batch $B_T^k$ of real images and a batch $B_S^k$ of synthetic images are sampled from $\mathcal{T}$ and $\mathcal{S}$ respectively.
         \item Then a neural network $\phi_\theta$ is employed to extract features from the images. The network have different layers, each creating a feature map. This multiple feature maps allow to capture low-level, mid-level and high-level representations of the data.
-        \item Using the feature maps of each layer, the Spatial Attention Matching (SAM) module generates an attention map for real and synthetic images. The attention map is formulated as $A(f_{\theta,l}^{T_k}) = \sum_{i=1}^{C_l} | (f_{\theta,l}^{T_k})_i|^p$ where $(f_{\theta,l}^{T_k})_i$ is the $i$th feature map in the $l$th layer, $C_l$ is the number of channels and $p$ is a parameter to adjust the weights of the feature maps.
+        \item Using the feature maps of each layer, the Spatial Attention Matching (SAM) module generates an attention map for real and synthetic images. The attention map is formulated as $A(f_{\theta,l}^{T_k}) = \sum_{i=1}^{C_l} | (f_{\theta,l}^{T_k})_i|^p$ where $(f_{\theta,l}^{T_k})_i$ is the $i$-th feature map in the $l$th layer, $C_l$ is the number of channels and $p$ is a parameter to adjust the weights of the feature maps.
         \item The attention maps for both datasets are then compared using the loss function $\mathcal{L}_{SAM}$.
         \item The output of the network for each dataset is also compared using the loss function $\mathcal{L}_{MMD}$ based on the Maximum Mean Discrepancy (MMD).
         \item The total loss is then given by $\mathcal{L} = \mathcal{L}_{SAM} + \mathcal{L}_{MMD}$.
@@ -104,8 +119,12 @@ This question relies on the paper \cite{sajedi2023datadam}.
 \end{enumerate}
 
 \subsection{Part 2}
-\begin{enumerate}[label=(\alph*)]
+This part relies on the paper \cite{li2024prioritize}.
 
+\section{Task 2}
+\subsection{Part 1}
+\begin{enumerate}[label=(\alph*)]
+    \item 
 \end{enumerate}
 
 \bibliographystyle{plain}

@@ -1,5 +1,10 @@
 \begin{thebibliography}{1}
 
+\bibitem{li2024prioritize}
+Zekai Li, Ziyao Guo, Wangbo Zhao, Tianle Zhang, Zhi-Qi Cheng, Samir Khaki, Kaipeng Zhang, Ahmad Sajed, Konstantinos~N Plataniotis, Kai Wang, et~al.
+\newblock Prioritize alignment in dataset distillation.
+\newblock {\em arXiv preprint arXiv:2408.03360}, 2024.
+
 \bibitem{sajedi2023datadam}
 Ahmad Sajedi, Samir Khaki, Ehsan Amjadian, Lucy~Z Liu, Yuri~A Lawryshyn, and Konstantinos~N Plataniotis.
 \newblock Datadam: Efficient dataset distillation with attention matching.
