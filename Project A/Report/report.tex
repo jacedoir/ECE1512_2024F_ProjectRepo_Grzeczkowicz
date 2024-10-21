@@ -119,6 +119,67 @@ This part relies on the paper \cite{sajedi2023datadam}.
 \end{enumerate}
 
 \subsection{Part 2}
+\subsubsection{Build the distillation model}
+To build the distillation model, we used the code provided by the author of \cite{sajedi2023datadam} in the repo \cite{githubGitHubDataDistillationDataDAM}. This allowed us to create a DataDAM class that we could use. Some change were required to make the understanding easier and to fit our framework as well as remove the uneeded parts.
+\\
+In \cite{githubGitHubDataDistillationDataDAM}, we can notice that the authors introduced a factor $100$ in their loss. After various attempt, and because they use more iterations than we do, we decided to set the factor to $10 000$ so that the loss is not too small and the dataset is updated correctly.
+
+\subsubsection{Distillation of MNIST dataset from real data}
+To generate the synthetic dataset associated with the MNIST dataset, we used the DataDAM class. The parameters used were : $model = ConvNet3D$, $IPC = 10$, $K=100$, $T=10$, $\eta_S = 0.1$, $\zeta_S = 1$, $\eta_\theta = 0.01$, $\zeta_\theta=50$, $\lambda_{mmd}=0.01$ and $minibatches_{size}=256$.
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}{.5\textwidth}
+        \centering
+        \includegraphics[width=0.95\textwidth]{images/MNIST_datadam_before_distil_real.png}
+        \caption{The synthetic dataset before distillation from real data}
+        \label{fig:MNIST_datadam_before_distil_real}
+    \end{subfigure}%
+    \begin{subfigure}{.5\textwidth}
+        \centering
+        \includegraphics[width=0.95\textwidth]{images/MNIST_datadam_after_distil_real.png}
+        \caption{The synthetic dataset after distillation from real data}
+        \label{fig:MNIST_datadam_after_distil_real}
+    \end{subfigure}
+    \caption{The synthetic dataset before and after distillation from real data}
+\end{figure}
+% \begin{figure}[H]
+%     \centering
+%     \includegraphics[width=0.5\textwidth]{images/MNIST_datadam_after_distil_real.png}
+%     \caption{The synthetic dataset after distillation from real data}
+%     \label{fig:MNIST_datadam_after_distil_real}
+% \end{figure}
+
+Figure \ref{fig:MNIST_datadam_before_distil_real} shows the synthetic dataset before distillation from real data and Figure \ref{fig:MNIST_datadam_after_distil_real} shows the synthetic dataset after distillation from real data. At first glance, we can see that the synthetic dataset is almost identical to the real dataset. To have a better understanding of the difference between the two datasets, we can look at Figure \ref{fig:MNIST_diff_real}. This figure shows the difference between the synthetic dataset before and after distillation from real data. We can see that the difference then resides in the detail of the shape of the digits. This is a good sign as it means that the synthetic dataset condenses the information of the real dataset.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{images/MNIST_diff_real.png}
+    \caption{The difference between the synthetic dataset before and after distillation from real data}
+    \label{fig:MNIST_diff_real}
+\end{figure}
+
+\subsubsection{Distillation of MNIST dataset from gaussian noise}
+To generate the gaussin noise, we used a standard normal distribution. The parameters used were the same as for the distillation from real data.
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}{.5\textwidth}
+        \centering
+        \includegraphics[width=0.95\textwidth]{images/MNIST_datadam_before_distil_gaussian.png}
+        \caption{The synthetic dataset before distillation from gaussian noise}
+        \label{fig:MNIST_datadam_before_distil_gaussian}
+    \end{subfigure}%
+    \begin{subfigure}{.5\textwidth}
+        \centering
+        \includegraphics[width=0.95\textwidth]{images/MNIST_datadam_after_distil_gaussian.png}
+        \caption{The synthetic dataset after distillation from gaussian noise}
+        \label{fig:MNIST_datadam_after_distil_gaussian}
+    \end{subfigure}
+    \caption{The synthetic dataset before and after distillation from gaussian noise}
+\end{figure}
+
+Figure \ref{fig:MNIST_datadam_before_distil_gaussian} shows the synthetic dataset before distillation from gaussian noise and Figure \ref{fig:MNIST_datadam_after_distil_gaussian} shows the synthetic dataset after distillation from gaussian noise. We can see that the distillation method succeeded in creating a synthetic dataset that shows digits we can recognize. However, those digits are not high quality.
+\\
+\subsubsection{Resutls and discussion for the MNIST dataset}
 
 \section{Task 2}
 This part relies on the paper \cite{li2024prioritize}.

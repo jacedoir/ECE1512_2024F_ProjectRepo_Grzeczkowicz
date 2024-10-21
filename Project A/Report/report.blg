@@ -3,44 +3,46 @@ Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
 The top-level auxiliary file: report.aux
 The style file: plain.bst
 Database file #1: mybibliography.bib
-You've used 2 entries,
+Warning--to sort, need author or key in githubGitHubDataDistillationDataDAM
+You've used 3 entries,
             2118 wiz_defined-function locations,
-            508 strings with 4568 characters,
-and the built_in function-call counts, 1187 in all, are:
-= -- 106
-> -- 91
+            513 strings with 4875 characters,
+and the built_in function-call counts, 1355 in all, are:
+= -- 123
+> -- 92
 < -- 1
-+ -- 36
++ -- 37
 - -- 34
-* -- 95
-:= -- 199
-add.period$ -- 6
-call.type$ -- 2
-change.case$ -- 22
+* -- 100
+:= -- 218
+add.period$ -- 9
+call.type$ -- 3
+change.case$ -- 25
 chr.to.int$ -- 0
-cite$ -- 2
-duplicate$ -- 37
-empty$ -- 65
+cite$ -- 4
+duplicate$ -- 44
+empty$ -- 88
 format.name$ -- 34
-if$ -- 240
+if$ -- 282
 int.to.chr$ -- 0
-int.to.str$ -- 2
+int.to.str$ -- 3
 missing$ -- 2
-newline$ -- 13
+newline$ -- 18
 num.names$ -- 4
-pop$ -- 25
+pop$ -- 35
 preamble$ -- 1
-purify$ -- 20
+purify$ -- 22
 quote$ -- 0
-skip$ -- 34
+skip$ -- 39
 stack$ -- 0
-substring$ -- 58
-swap$ -- 16
+substring$ -- 63
+swap$ -- 17
 text.length$ -- 1
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 8
-warning$ -- 0
+type$ -- 12
+warning$ -- 1
 while$ -- 7
-width$ -- 3
-write$ -- 23
+width$ -- 4
+write$ -- 32
+(There was 1 warning)

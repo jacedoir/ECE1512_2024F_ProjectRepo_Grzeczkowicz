@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.26 (TeX Live 2024) (preloaded format=pdflatex 2024.5.1)  21 OCT 2024 09:44
+This is pdfTeX, Version 3.141592653-2.6-1.40.26 (TeX Live 2024) (preloaded format=pdflatex 2024.5.1)  21 OCT 2024 17:17
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -547,7 +547,39 @@ File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 LaTeX Font Info:    Trying to load font information for U+msb on input line 98.
  (/usr/local/texlive/2024/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
-) [1{/usr/local/texlive/2024/texmf-var/fonts/map/pdftex/updmap/pdftex.map}{/usr/local/texlive/2024/texmf-dist/fonts/enc/dvips/base/8r.enc}] (./report.bbl) [2] 
+)
+<images/MNIST_datadam_before_distil_real.png, id=52, 712.5822pt x 711.8595pt>
+File: images/MNIST_datadam_before_distil_real.png Graphic file (type png)
+<use images/MNIST_datadam_before_distil_real.png>
+Package pdftex.def Info: images/MNIST_datadam_before_distil_real.png  used on input line 133.
+(pdftex.def)             Requested size: 245.09921pt x 244.8423pt.
+<images/MNIST_datadam_after_distil_real.png, id=54, 712.5822pt x 711.8595pt>
+File: images/MNIST_datadam_after_distil_real.png Graphic file (type png)
+<use images/MNIST_datadam_after_distil_real.png>
+Package pdftex.def Info: images/MNIST_datadam_after_distil_real.png  used on input line 139.
+(pdftex.def)             Requested size: 245.09921pt x 244.8423pt.
+ [1{/usr/local/texlive/2024/texmf-var/fonts/map/pdftex/updmap/pdftex.map}{/usr/local/texlive/2024/texmf-dist/fonts/enc/dvips/base/8r.enc}]
+<images/MNIST_diff_real.png, id=88, 712.5822pt x 711.8595pt>
+File: images/MNIST_diff_real.png Graphic file (type png)
+<use images/MNIST_diff_real.png>
+Package pdftex.def Info: images/MNIST_diff_real.png  used on input line 155.
+(pdftex.def)             Requested size: 258.0pt x 257.7356pt.
+<images/MNIST_datadam_before_distil_gaussian.png, id=89, 712.5822pt x 711.8595pt>
+File: images/MNIST_datadam_before_distil_gaussian.png Graphic file (type png)
+<use images/MNIST_datadam_before_distil_gaussian.png>
+Package pdftex.def Info: images/MNIST_datadam_before_distil_gaussian.png  used on input line 167.
+(pdftex.def)             Requested size: 245.09921pt x 244.8423pt.
+<images/MNIST_datadam_after_distil_gaussian.png, id=90, 712.5822pt x 711.8595pt>
+File: images/MNIST_datadam_after_distil_gaussian.png Graphic file (type png)
+<use images/MNIST_datadam_after_distil_gaussian.png>
+Package pdftex.def Info: images/MNIST_datadam_after_distil_gaussian.png  used on input line 173.
+(pdftex.def)             Requested size: 245.09921pt x 244.8423pt.
+ [2 <./images/MNIST_datadam_before_distil_real.png> <./images/MNIST_datadam_after_distil_real.png> <./images/MNIST_diff_real.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 180--182
+
+ []
+
+[3 <./images/MNIST_datadam_before_distil_gaussian.png> <./images/MNIST_datadam_after_distil_gaussian.png>] (./report.bbl) [4] 
 enddocument/afterlastpage: lastpage setting LastPage.
 (./report.aux)
  ***********
@@ -555,21 +587,21 @@ LaTeX2e <2023-11-01> patch level 1
 L3 programming layer <2024-04-11>
  ***********
 Package rerunfilecheck Info: File `report.out' has not changed.
-(rerunfilecheck)             Checksum: E96F63E94ED75C0152774C195B173CA9;619.
+(rerunfilecheck)             Checksum: 0B43F74325EFA9DD8094DA25C0762A8C;1777.
  ) 
 Here is how much of TeX's memory you used:
- 15154 strings out of 474050
- 241558 string characters out of 5742264
- 1947751 words of memory out of 5000000
- 37334 multiletter control sequences out of 15000+600000
- 589517 words of font info for 93 fonts, out of 8000000 for 9000
+ 15251 strings out of 474050
+ 244450 string characters out of 5742264
+ 1949751 words of memory out of 5000000
+ 37413 multiletter control sequences out of 15000+600000
+ 593695 words of font info for 106 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 75i,11n,79p,829b,586s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 75i,11n,79p,891b,707s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi5.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmr5.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy5.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on report.pdf (2 pages, 144100 bytes).
+Output written on report.pdf (4 pages, 2235198 bytes).
 PDF statistics:
- 146 PDF objects out of 1000 (max. 8388607)
- 114 compressed objects within 2 object streams
- 35 named destinations out of 1000 (max. 500000)
- 57 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 199 PDF objects out of 1000 (max. 8388607)
+ 155 compressed objects within 2 object streams
+ 45 named destinations out of 1000 (max. 500000)
+ 114 words of extra memory for PDF output out of 10000 (max. 10000000)
 
