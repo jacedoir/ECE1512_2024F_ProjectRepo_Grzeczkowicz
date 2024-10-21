@@ -60,11 +60,13 @@ class DataDAM:
             synthetic_dataset.data[c*self.IPC:(c+1)*self.IPC] = self.get_images(c, self.IPC).detach().data
         label_syn = torch.tensor([np.ones(self.IPC)*i for i in range(self.num_classes)], dtype=torch.long, requires_grad=False, device=self.device).view(-1) # [0,0,0, 1,1,1, ..., 9,9,9]
         return synthetic_dataset, label_syn
+    
     def initialize_synthetic_dataset_from_gaussian_noise(self, mean, std):
         #Create IPC images per class from Gaussian noise
         synthetic_dataset = torch.normal(mean, std, size=(self.num_classes*self.IPC, self.channels, self.im_size[0], self.im_size[1]), dtype=torch.float, requires_grad=True, device=self.device)
         label_syn = torch.tensor([np.ones(self.IPC)*i for i in range(self.num_classes)], dtype=torch.long, requires_grad=False, device=self.device).view(-1) # [0,0,0, 1,1,1, ..., 9,9,9]
         return synthetic_dataset, label_syn
+   
     def mmd_loss(self, final_feature_real, final_feature_synthetic):
         """
         Compute the MMD loss between real and synthetic data.
@@ -82,40 +84,6 @@ class DataDAM:
         attention_real = get_attention(feature_real)
         attention_synthetic = get_attention(feature_synthetic)
         return torch.norm(attention_real - attention_synthetic)
-
-    def epoch(self,mode, dataloader, net, optimizer, criterion, device):
-        loss_avg, acc_avg, num_exp = 0, 0, 0
-        net = net.to(device)
-        criterion = criterion.to(device)
-
-        if mode == 'train':
-            net.train()
-        else:
-            net.eval()
-
-        for i_batch, datum in enumerate(dataloader):
-            img = datum[0].float().to(device)
-            lab = datum[1].long().to(device)
-            n_b = lab.shape[0]
-
-            output = net(img)
-            loss = criterion(output, lab)
-            acc = np.sum(np.equal(np.argmax(output.cpu().data.numpy(), axis=-1), lab.cpu().data.numpy()))
-
-            loss_avg += loss.item()*n_b
-            acc_avg += acc
-            num_exp += n_b
-
-            if mode == 'train':
-                optimizer.zero_grad()
-                loss.backward()
-                optimizer.step()
-
-        loss_avg /= num_exp
-        acc_avg /= num_exp
-
-        return loss_avg, acc_avg
-     
     
     def getActivation(self,name):
         def hook_func(m, inp, op):
@@ -187,10 +155,6 @@ class DataDAM:
 
 
         torch.autograd.set_detect_anomaly(True)
-        # image_syn_all = []
-        # for c in range(self.num_classes):
-        #     image_syn_all.append(self.synthetic_dataset[c*self.IPC:(c+1)*self.IPC].reshape(self.IPC, self.channels, self.im_size[0], self.im_size[1]))
-        # image_syn_all = torch.cat(image_syn_all, dim=0).to(self.device).requires_grad_(True)
 
         optimizer_images = torch.optim.SGD([syn_dataset], lr=self.eta_S)
 
@@ -200,11 +164,6 @@ class DataDAM:
             out_loss = 0
 
             optimizer_images.zero_grad()
-
-            # image_syn_all = []
-            # for c in range(self.num_classes):
-            #     image_syn_all.append(self.synthetic_dataset[c*self.IPC:(c+1)*self.IPC].reshape(self.IPC, self.channels, self.im_size[0], self.im_size[1]))
-            # image_syn_all = torch.cat(image_syn_all, dim=0)
 
             # Sample minibatches for real data
             minibatches_real = []
@@ -221,30 +180,12 @@ class DataDAM:
             minibatches_real_labels = torch.tensor(minibatches_real_labels, dtype=torch.long, device=self.device).view(-1)
 
             progress_k = tqdm(range(1,self.K+1,1), desc=f"Iteration {t}/{self.T} - Weight Initializations")
-
-            # Reinitialize network weights for each iteration
-            # net = get_network(self.model, self.channels, self.num_classes, self.im_size)
-            # net.to(self.device)
-            
-
-            # optimizer_net = optim.SGD(net.parameters(), lr=self.eta_theta)
-            # criterion = nn.CrossEntropyLoss()
     
 
             for k in progress_k:
                 net = get_network(self.model, self.channels, self.num_classes, self.im_size)
                 net.to(self.device) 
                 net.train()
-
-                # # Training the network over zeta_theta iterations (like the first method)
-                # for step in range(self.zeta_theta):
-                #     optimizer_net.zero_grad()
-                #     output_real = net(minibatches_real)
-                #     loss_real = criterion(output_real, minibatches_real_labels)
-                #     loss_real.backward()
-                #     optimizer_net.step()
-
-                # net.eval()  # Evaluation phase
 
                 # Attach hooks to get intermediate activations
                 hooks = self.attach_hooks(net)
@@ -279,10 +220,10 @@ class DataDAM:
                 loss += output_loss
                 out_loss += output_loss
 
-                if k%5 == 0 and "MHIST" in self.save_path:
-                    loss /= 5
-                    out_loss /= 5
-                    mid_loss /= 5
+                if "MHIST" in self.save_path:
+                    # loss /= 5
+                    # out_loss /= 5
+                    # mid_loss /= 5
                     
                     optimizer_images.zero_grad()
                     loss.backward()
