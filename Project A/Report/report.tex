@@ -119,12 +119,26 @@ This part relies on the paper \cite{sajedi2023datadam}.
 \end{enumerate}
 
 \subsection{Part 2}
-This part relies on the paper \cite{li2024prioritize}.
 
 \section{Task 2}
+This part relies on the paper \cite{li2024prioritize}.
 \subsection{Part 1}
 \begin{enumerate}[label=(\alph*)]
-    \item 
+    \item The PAD method wants to solve the problem of misaligned information whether extracted or embedded into the synthetic dataset. The goal is to une only high-quality informations to improve the synthetic dataset.
+    \vspace{3mm}
+    \item PAD introduced two novelties. The first one is the filtering of misaligned information during the extraction step by chosing the data to use according to the difficulty of samples and the image per class ration. The second novelty is the use of a layer-wise filtering in embedding. PAD only uses the deep layers of the agent model to perform distillation as they tend to captures higher quality information.
+    \vspace{3mm}
+    \item The methodology is as follows:
+    \begin{enumerate}[label=(\arabic*)]
+        \item The real dataset is scored using a difficulty scoring function $\chi_t(x, y) = \mathbb{E} \left\| p(w_t, x) - y \right\|_2$ where $x$ is a data point, $y$ its label and $p(w_t,x)=\sigma(f(w_t, x))$ is the output of a model $f$ transformed into a probability distribution.
+        \item Using this difficulty score, a data scheduler is define as follow. All the easy data are selected first, then the hard data is gradually added to the set following the order of difficulty. When all the data is in the set, the easy data is gradually removed.
+        \item An agent model is trained on the real dataset $\mathcal{D}_R$ using a Trajectory-Matching based method and the scheduler described. Then the change of parameters are stored. Let $\{\theta_t^*\}_0^N$ be a parameter sequence of the agent model (it is also called the trajectory). 
+        \item At each ineration, $\theta_t^*$ and $\theta_{t+M}^*$ are selected as start and target parameters. Let $\hat\theta_t$ be the parameters of the student agent model trained on the synthetic dataset $\mathcal{D}_S$. Then for $N$ steps $\hat\theta_{t+i+1} = \hat\theta_{t+i} + \alpha \nabla\mathcal{L}_{CE}(\hat\theta_{t+i}, \mathcal{D}_S)$ where $\mathcal{L}_{CE}$ is the cross-entropy loss.
+        \item To filter information $\hat\theta_{t+N}$ is defined such as only the $L-k$ last layers are used for matching where $k=\alpha*L$ and $\alpha$ is a hyperparameter that should be low in case of small IPC and high in case of high IPC.
+        \item Then the synthetic dataset is updated such as it minimizes $\mathcal{L}$ where $\mathcal{L}=\frac{\left\|\hat\theta_{t+N}-\theta^*_{t+M}\right\|}{\left\|\theta^*_{t+M}-\theta^*_t\right\|}$.
+    \end{enumerate}
+    \vspace{3mm}
+    \item The advantages of PAD are: an improved alignment of information, a high-level of information (by discarding shallow layers) and, according to the paper, a better performance than other methods. The desadvanteges are the introduction of hyperparameter (notably $\alpha$) that have to be tuned, the dependence of the difficulty scoring function that could be hard to define/improve. I believe that this method could distill the dataset correctly accordingt to the performances authors got. I believe that PAD will have more trouble with large scale dataset as the difficulty scoring function may score the entire dataset as difficult and thus leading to a non optimal scheduler.
 \end{enumerate}
 
 \bibliographystyle{plain}
