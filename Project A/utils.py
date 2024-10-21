@@ -213,7 +213,7 @@ def get_network(model, channel, num_classes, im_size=(32, 32)):
     elif model == 'LeNet':
         net = LeNet(channel=channel, num_classes=num_classes)
     elif model == 'AlexNet':
-        net = AlexNet(channel=channel, num_classes=num_classes)
+        net = AlexNet(channel=channel, num_classes=num_classes, image_size=im_size)
     elif model == 'AlexNetBN':
         net = AlexNetBN(channel=channel, num_classes=num_classes)
     elif model == 'VGG11':

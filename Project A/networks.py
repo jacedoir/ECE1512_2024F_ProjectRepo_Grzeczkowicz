@@ -139,13 +139,13 @@ class LeNet(nn.Module):
         return x
 
 
-
 ''' AlexNet '''
 class AlexNet(nn.Module):
-    def __init__(self, channel, num_classes):
+    def __init__(self, channel, num_classes, image_size):
         super(AlexNet, self).__init__()
+        
         self.features = nn.Sequential(
-            nn.Conv2d(channel, 128, kernel_size=5, stride=1, padding=4 if channel==1 else 2),
+            nn.Conv2d(channel, 128, kernel_size=5, stride=1, padding=4 if channel == 1 else 2),
             nn.ReLU(inplace=True),
             nn.MaxPool2d(kernel_size=2, stride=2),
             nn.Conv2d(128, 192, kernel_size=5, padding=2),
@@ -159,18 +159,26 @@ class AlexNet(nn.Module):
             nn.ReLU(inplace=True),
             nn.MaxPool2d(kernel_size=2, stride=2),
         )
-        self.fc = nn.Linear(192 * 4 * 4, num_classes)
+        
+        # Set the input size for the fully connected layer based on the image size
+        if image_size == (224, 224):
+            self.fc = nn.Linear(192 * 28 * 28, num_classes)  # Output size for 224x224 images
+        elif image_size == (28, 28):
+            self.fc = nn.Linear(192 * 4 * 4, num_classes)  # Output size for 28x28 images
+        else:
+            raise ValueError("image_size must be either 28 or 224.")
 
     def forward(self, x):
         x = self.features(x)
-        emb = x.view(x.size(0), -1)
+        emb = x.view(x.size(0), -1)  # Flatten the feature map
         out = self.fc(emb)
         return emb, out
 
     def embed(self, x):
         x = self.features(x)
-        x = x.view(x.size(0), -1)
+        x = x.view(x.size(0), -1)  # Flatten the feature map
         return x
+
 
 
 ''' AlexNetBN '''
@@ -204,7 +212,6 @@ class AlexNetBN(nn.Module):
         emb = x.view(x.size(0), -1)
         out = self.fc(emb)
         return emb, out
-
 
     def embed(self, x):
         x = self.features(x)
