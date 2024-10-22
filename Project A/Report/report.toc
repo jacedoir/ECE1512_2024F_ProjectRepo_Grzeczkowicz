@@ -1,0 +1,17 @@
+\contentsline {section}{\numberline {I}Introduction}{2}{section.1}%
+\contentsline {section}{\numberline {II}Task 1 - DataDAM}{2}{section.2}%
+\contentsline {subsection}{\numberline {\mbox {II-A}}Part 1 - Questions anwsering}{2}{subsection.2.1}%
+\contentsline {subsection}{\numberline {\mbox {II-B}}Part 2 - Data Distillation Learning using DataDAM}{2}{subsection.2.2}%
+\contentsline {subsubsection}{\numberline {\mbox {II-B}1}Build the distillation model}{2}{subsubsection.2.2.1}%
+\contentsline {subsubsection}{\numberline {\mbox {II-B}2}Distillation of MNIST dataset from real data}{2}{subsubsection.2.2.2}%
+\contentsline {subsubsection}{\numberline {\mbox {II-B}3}Distillation of MNIST dataset from gaussian noise}{3}{subsubsection.2.2.3}%
+\contentsline {subsubsection}{\numberline {\mbox {II-B}4}Resutls and discussion for the MNIST dataset}{4}{subsubsection.2.2.4}%
+\contentsline {subsubsection}{\numberline {\mbox {II-B}5}Distillation of the MHIST dataset from real data}{4}{subsubsection.2.2.5}%
+\contentsline {subsubsection}{\numberline {\mbox {II-B}6}Distillation of the MHIST dataset from gaussian noise}{5}{subsubsection.2.2.6}%
+\contentsline {subsubsection}{\numberline {\mbox {II-B}7}Resutls and discussion for the MHIST dataset}{6}{subsubsection.2.2.7}%
+\contentsline {subsubsection}{\numberline {\mbox {II-B}8}Neural architecture search}{6}{subsubsection.2.2.8}%
+\contentsline {section}{\numberline {III}Task 2 - PAD}{7}{section.3}%
+\contentsline {subsection}{\numberline {\mbox {III-A}}Part 1 - Questions anwsering}{7}{subsection.3.1}%
+\contentsline {subsection}{\numberline {\mbox {III-B}}Part 2 - Data Distillation Learning using PAD}{8}{subsection.3.2}%
+\contentsline {subsubsection}{\numberline {\mbox {III-B}1}Build the distillation model}{8}{subsubsection.3.2.1}%
+\contentsline {section}{References}{8}{section*.14}%
