@@ -5,6 +5,11 @@
 \newblock \url{https://github.com/DataDistillation/DataDAM}.
 \newblock [Accessed 21-10-2024].
 
+\bibitem{githubGitHubNUSHPCAILabPAD}
+{G}it{H}ub - {N}{U}{S}-{H}{P}{C}-{A}{I}-{L}ab/{P}{A}{D}: {P}rioritize {A}lignment in {D}ataset {D}istillation --- github.com.
+\newblock \url{https://github.com/NUS-HPC-AI-Lab/PAD}.
+\newblock [Accessed 22-10-2024].
+
 \bibitem{li2024prioritize}
 Zekai Li, Ziyao Guo, Wangbo Zhao, Tianle Zhang, Zhi-Qi Cheng, Samir Khaki, Kaipeng Zhang, Ahmad Sajed, Konstantinos~N Plataniotis, Kai Wang, et~al.
 \newblock Prioritize alignment in dataset distillation.
