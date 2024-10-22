@@ -109,6 +109,25 @@ class PAD:
         label_syn = torch.tensor([np.ones(self.IPC)*i for i in range(self.num_classes)], dtype=torch.long, requires_grad=False, device=self.device).view(-1) # [0,0,0, 1,1,1, ..., 9,9,9]
         return synthetic_dataset, label_syn
     
+    def initialize_synthetic_dataset_from_previous(self, step):
+        print("Loading synthetic data from step " + str(step))
+        img_list = os.listdir(self.save_path + "/step_" + str(step))
+        synthetic_dataset = torch.randn(size=(self.num_classes * self.IPC, self.channel, self.im_size[0], self.im_size[1]), dtype=torch.float, requires_grad=True, device=self.device)
+
+        #Load the synthetic data from the last step
+        convert = "L" if self.channel == 1 else "RGB"
+        images = []
+        for image in img_list:
+            img = Image.open(os.path.join(self.save_path + "/step_" + str(step), image)).convert(convert)
+            img = transforms.ToTensor()(img)
+            images.append(img)
+        #unsqueeze the image to be batch_sizexchannelxHxW
+        images = torch.stack(images).to(self.device)
+        synthetic_dataset.data = images.detach().data
+        label_syn = torch.tensor([np.ones(self.IPC)*i for i in range(self.num_classes)], dtype=torch.long, requires_grad=False, device=self.device).view(-1) # [0,0,0, 1,1,1, ..., 9,9,9]
+        print("Synthetic data loaded from step " + str(step) + " with shape: "+ str(synthetic_dataset.shape))
+        return synthetic_dataset, label_syn
+    
     def schedule_data(self,t):
         nb_cuts = self.zeta_theta//2
         cut_size = self.images_all.shape[0]//nb_cuts
@@ -127,20 +146,26 @@ class PAD:
         return tm_loss
 
     
-    def train(self, init="Gaussian", mean = 0, std = 1):
+    def train(self, init="Gaussian", mean = 0, std = 1, from_step = 0):
         self.difficulty_scoring()
         # Initialize synthetic dataset
-        if init == "Real":
-            synthetic_dataset, label_syn = self.initialize_synthetic_dataset_from_real()
-        elif init == "Gaussian":
-            synthetic_dataset, label_syn = self.initialize_synthetic_dataset_from_gaussian_noise(mean, std)
+        if from_step == 0:
+            if init == "Real":
+                synthetic_dataset, label_syn = self.initialize_synthetic_dataset_from_real()
+            elif init == "Gaussian":
+                synthetic_dataset, label_syn = self.initialize_synthetic_dataset_from_gaussian_noise(mean, std)
+            # Save the orginal synthetic data to folder
+            if not os.path.exists(self.save_path + "/step_0"):
+                os.makedirs(self.save_path + "/step_0")
+            for i in range(len(synthetic_dataset)): 
+                torchvision.utils.save_image(synthetic_dataset[i], self.save_path + "/step_0" + "/synthetic_" + str(i) + ".png")
+            synthetic_dataset.requires_grad = True
+        else:
+            synthetic_dataset, label_syn = self.initialize_synthetic_dataset_from_previous(from_step)
+            synthetic_dataset.requires_grad = True
+            synthetic_dataset.to(self.device)
+            
         self.saved_synthetic_dataset.append([torch.clone(synthetic_dataset).detach().cpu(), label_syn])
-        # Save the orginal synthetic data to folder
-        if not os.path.exists(self.save_path + "/step_0"):
-            os.makedirs(self.save_path + "/step_0")
-        for i in range(len(synthetic_dataset)):
-            torchvision.utils.save_image(synthetic_dataset[i], self.save_path + "/step_0" + "/synthetic_" + str(i) + ".png")
-        synthetic_dataset.requires_grad = True
         
         stored_parameters = []
         
@@ -175,7 +200,7 @@ class PAD:
                 
         model.to('cpu')
         
-        progress_train_data = tqdm(range(1,self.K+1,1), desc="Training the synthetic data")
+        progress_train_data = tqdm(range(1+from_step*10,self.K+1,1), desc="Training the synthetic data")
         optimizer_syn = torch.optim.SGD([synthetic_dataset], lr=self.eta_S)
         for t in progress_train_data:
             student_model = get_network(self.model, self.channel, self.num_classes, self.im_size)
