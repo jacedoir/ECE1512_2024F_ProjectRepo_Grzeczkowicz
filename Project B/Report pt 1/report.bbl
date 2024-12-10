@@ -1,0 +1,71 @@
+\begin{thebibliography}{10}
+
+\bibitem{paperswithcodePapersWithCifar10}
+{P}apers with {C}ode - {C}{I}{F}{A}{R}-10 {B}enchmark ({I}mage {C}lassification) --- paperswithcode.com.
+\newblock \url{https://paperswithcode.com/sota/image-classification-on-cifar-10}.
+\newblock [Accessed 28-11-2024].
+
+\bibitem{paperswithcodePapersWithCifar100}
+{P}apers with {C}ode - {C}{I}{F}{A}{R}-100 {B}enchmark ({I}mage {C}lassification) --- paperswithcode.com.
+\newblock \url{https://paperswithcode.com/sota/image-classification-on-cifar-100}.
+\newblock [Accessed 28-11-2024].
+
+\bibitem{paperswithcodePapersWithMHIST}
+{P}apers with {C}ode - {M}{H}{I}{S}{T} {B}enchmark ({C}lassification) --- paperswithcode.com.
+\newblock \url{https://paperswithcode.com/sota/classification-on-mhist}.
+\newblock [Accessed 28-11-2024].
+
+\bibitem{alex2009learning}
+Krizhevsky Alex.
+\newblock Learning multiple layers of features from tiny images.
+\newblock {\em https://www. cs. toronto. edu/kriz/learning-features-2009-TR. pdf}, 2009.
+
+\bibitem{dosovitskiy2020image}
+Alexey Dosovitskiy.
+\newblock An image is worth 16x16 words: Transformers for image recognition at scale.
+\newblock {\em arXiv preprint arXiv:2010.11929}, 2020.
+
+\bibitem{escolano2024residual}
+Carlos Escolano, Francesca De~Luca~Fornaciari, and Maite Melero.
+\newblock Residual dropout: A simple approach to improve transformer’s data efficiency.
+\newblock In {\em The 3rd Annual Meeting of the ELRA-ISCA Special Interest Group on Under-resourced Languages@ LREC-COLING-2024 (SIGUL 2024): Turin, Italy}, pages 294--299. ELRA Language Resources Association and the International Committee on~…, 2024.
+
+\bibitem{foret2020sharpness}
+Pierre Foret, Ariel Kleiner, Hossein Mobahi, and Behnam Neyshabur.
+\newblock Sharpness-aware minimization for efficiently improving generalization.
+\newblock {\em arXiv preprint arXiv:2010.01412}, 2020.
+
+\bibitem{gu2024mambalineartimesequencemodeling}
+Albert Gu and Tri Dao.
+\newblock Mamba: Linear-time sequence modeling with selective state spaces, 2024.
+
+\bibitem{khan2022transformers}
+Salman Khan, Muzammal Naseer, Munawar Hayat, Syed~Waqas Zamir, Fahad~Shahbaz Khan, and Mubarak Shah.
+\newblock Transformers in vision: A survey.
+\newblock {\em ACM computing surveys (CSUR)}, 54(10s):1--41, 2022.
+
+\bibitem{koehn2005europarl}
+Philipp Koehn.
+\newblock Europarl: A parallel corpus for statistical machine translation.
+\newblock In {\em Proceedings of machine translation summit x: papers}, pages 79--86, 2005.
+
+\bibitem{pitorro2024effectivestatespacemodels}
+Hugo Pitorro, Pavlo Vasylenko, Marcos Treviso, and André F.~T. Martins.
+\newblock How effective are state space models for machine translation?, 2024.
+
+\bibitem{tan2019efficientnet}
+Mingxing Tan and Quoc Le.
+\newblock Efficientnet: Rethinking model scaling for convolutional neural networks.
+\newblock In {\em International conference on machine learning}, pages 6105--6114. PMLR, 2019.
+
+\bibitem{wei2021petri}
+Jerry Wei, Arief Suriawinata, Bing Ren, Xiaoying Liu, Mikhail Lisovsky, Louis Vaickus, Charles Brown, Michael Baker, Naofumi Tomita, Lorenzo Torresani, et~al.
+\newblock A petri dish for histopathology image analysis.
+\newblock In {\em Artificial Intelligence in Medicine: 19th International Conference on Artificial Intelligence in Medicine, AIME 2021, Virtual Event, June 15--18, 2021, Proceedings}, pages 11--24. Springer, 2021.
+
+\bibitem{yue2024medmamba}
+Yubiao Yue and Zhenzhang Li.
+\newblock Medmamba: Vision mamba for medical image classification.
+\newblock {\em arXiv preprint arXiv:2403.03849}, 2024.
+
+\end{thebibliography}

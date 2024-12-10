@@ -1,0 +1,71 @@
+\begin{thebibliography}{10}
+
+\bibitem{githubGitHubComputerVisionintheWildCVinW_Readings}
+{G}it{H}ub - {C}omputer-{V}ision-in-the-{W}ild/{C}{V}in{W}\_{R}eadings: {A} collection of papers on the topic of ``{C}omputer {V}ision in the {W}ild ({C}{V}in{W})'' --- github.com.
+\newblock \url{https://github.com/Computer-Vision-in-the-Wild/CVinW_Readings}.
+\newblock [Accessed 02-12-2024].
+
+\bibitem{vicuna2023}
+Wei-Lin Chiang, Zhuohan Li, Zi~Lin, Ying Sheng, Zhanghao Wu, Hao Zhang, Lianmin Zheng, Siyuan Zhuang, Yonghao Zhuang, Joseph~E. Gonzalez, Ion Stoica, and Eric~P. Xing.
+\newblock Vicuna: An open-source chatbot impressing gpt-4 with 90\%* chatgpt quality, March 2023.
+
+\bibitem{goyal2017making}
+Yash Goyal, Tejas Khot, Douglas Summers-Stay, Dhruv Batra, and Devi Parikh.
+\newblock Making the v in vqa matter: Elevating the role of image understanding in visual question answering.
+\newblock In {\em Proceedings of the IEEE conference on computer vision and pattern recognition}, pages 6904--6913, 2017.
+
+\bibitem{hu2021lora}
+Edward~J Hu, Yelong Shen, Phillip Wallis, Zeyuan Allen-Zhu, Yuanzhi Li, Shean Wang, Lu~Wang, and Weizhu Chen.
+\newblock Lora: Low-rank adaptation of large language models.
+\newblock {\em arXiv preprint arXiv:2106.09685}, 2021.
+
+\bibitem{li2023evaluating}
+Yifan Li, Yifan Du, Kun Zhou, Jinpeng Wang, Wayne~Xin Zhao, and Ji-Rong Wen.
+\newblock Evaluating object hallucination in large vision-language models.
+\newblock {\em arXiv preprint arXiv:2305.10355}, 2023.
+
+\bibitem{lin2014microsoft}
+Tsung-Yi Lin, Michael Maire, Serge Belongie, James Hays, Pietro Perona, Deva Ramanan, Piotr Doll{\'a}r, and C~Lawrence Zitnick.
+\newblock Microsoft coco: Common objects in context.
+\newblock In {\em Computer Vision--ECCV 2014: 13th European Conference, Zurich, Switzerland, September 6-12, 2014, Proceedings, Part V 13}, pages 740--755. Springer, 2014.
+
+\bibitem{liu2023visualinstructiontuning}
+Haotian Liu, Chunyuan Li, Qingyang Wu, and Yong~Jae Lee.
+\newblock Visual instruction tuning, 2023.
+
+\bibitem{liu2025mmbench}
+Yuan Liu, Haodong Duan, Yuanhan Zhang, Bo~Li, Songyang Zhang, Wangbo Zhao, Yike Yuan, Jiaqi Wang, Conghui He, Ziwei Liu, et~al.
+\newblock Mmbench: Is your multi-modal model an all-around player?
+\newblock In {\em European Conference on Computer Vision}, pages 216--233. Springer, 2025.
+
+\bibitem{lu2022learn}
+Pan Lu, Swaroop Mishra, Tanglin Xia, Liang Qiu, Kai-Wei Chang, Song-Chun Zhu, Oyvind Tafjord, Peter Clark, and Ashwin Kalyan.
+\newblock Learn to explain: Multimodal reasoning via thought chains for science question answering.
+\newblock {\em Advances in Neural Information Processing Systems}, 35:2507--2521, 2022.
+
+\bibitem{radford2021learning}
+Alec Radford, Jong~Wook Kim, Chris Hallacy, Aditya Ramesh, Gabriel Goh, Sandhini Agarwal, Girish Sastry, Amanda Askell, Pamela Mishkin, Jack Clark, et~al.
+\newblock Learning transferable visual models from natural language supervision.
+\newblock In {\em International conference on machine learning}, pages 8748--8763. PMLR, 2021.
+
+\bibitem{shang2024LLaVA-PruMerge}
+Yuzhang Shang, Mu~Cai, Bingxin Xu, Yong~Jae Lee, and Yan Yan.
+\newblock Llava-prumerge: Adaptive token reduction for efficient large multimodal models.
+\newblock {\em arXiv preprint arXiv:2403.15388}, 2024.
+
+\bibitem{singh2019towards}
+Amanpreet Singh, Vivek Natarajan, Meet Shah, Yu~Jiang, Xinlei Chen, Dhruv Batra, Devi Parikh, and Marcus Rohrbach.
+\newblock Towards vqa models that can read.
+\newblock In {\em Proceedings of the IEEE/CVF conference on computer vision and pattern recognition}, pages 8317--8326, 2019.
+
+\bibitem{wu2024performance}
+Chuhan Wu and Ruiming Tang.
+\newblock Performance law of large language models.
+\newblock {\em arXiv preprint arXiv:2408.09895}, 2024.
+
+\bibitem{yin2024survey}
+Shukang Yin, Chaoyou Fu, Sirui Zhao, Ke~Li, Xing Sun, Tong Xu, and Enhong Chen.
+\newblock A survey on multimodal large language models.
+\newblock {\em National Science Review}, page nwae403, 2024.
+
+\end{thebibliography}
